@@ -6,6 +6,7 @@ import lovely_tensors
 import torch.nn.functional as F
 from PIL import Image
 from fastapi import FastAPI
+from matplotlib import pyplot as plt
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 from torchvision.transforms.functional import to_tensor
@@ -13,7 +14,7 @@ import torch
 
 lovely_tensors.monkey_patch()
 
-from model import Net
+from model import Net, CNN
 
 app = FastAPI(debug=True)
 
@@ -42,8 +43,8 @@ class PredResponse(BaseModel):
     labels: List[str]
 
 
-model = Net()
-model.load_state_dict(torch.load('model.pt'))
+model = CNN()
+model.load_state_dict(torch.load('model.pt', map_location=torch.device('cpu')))
 
 
 @app.post("/api/mnist", response_model=PredResponse)
@@ -51,11 +52,13 @@ async def mnist_predict(img_data: ImageData):
     img = img_data.to_pil()
     img = img.resize((28, 28))
 
-    img = to_tensor(img)
-    img = -img
+    img = to_tensor(img).unsqueeze(0)
+    img = 1-img
     img = img * 2. - 1.
 
     print(img)
+    plt.imshow(img[0][0])
+    plt.show()
 
     output = model(img)
     probabilities = F.softmax(output, dim=1)
@@ -71,4 +74,4 @@ async def mnist_predict(img_data: ImageData):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="localhost", port=8080, log_level="info", reload=True)
+    uvicorn.run("main:app", host="localhost", port=8081, log_level="info", reload=True)
