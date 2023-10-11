@@ -6,8 +6,8 @@ window.onload = async () => {
 
 async function predictOnnx() {
     const start = performance.now();
-    const canvasContext = canvas2.getContext('2d');
-    const input = await ort.Tensor.fromImage(canvasContext.getImageData(0,0, canvas2.width, canvas2.height));
+    const canvasContext = canvas.getContext('2d');
+    const input = await ort.Tensor.fromImage(canvasContext.getImageData(0,0, canvas.width, canvas.height));
     const {output} = await window.session.run({input: input});
     window.output = output
     console.log(output)
@@ -21,8 +21,37 @@ $("#predict-onnx").click(
     async function () {
         const {label, latency} = await predictOnnx();
         $("#response-text").text("Prediction: " + label);
-        $("#latency-text").text("Latency: " + latency);
+        $("#latency-text").text("Latency: " + (latency/1000).toFixed(3) + 's');
 });
+
+
+$("#predict").click(
+    async function () {
+        const dataURL = canvas.toDataURL('jpg');
+        const base64Image = dataURL.split(',')[1];
+        const start = performance.now();
+        $.ajax({
+            url: 'http://localhost:8081/api/mnist',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({img_base_64: base64Image}),
+            success: function (res) {
+                console.log(res)
+                if (res.prediction !== undefined) {
+                    console.log(res);
+                    $("#response-text").text("Prediction: " + idxToLabel[res.prediction]);
+                    $("#latency-text").text("Latency: " + ((performance.now()-start)/1000).toFixed(3) + 's');
+                } else {
+                    console.log(res)
+                }
+            },
+            error: function (xhr, textStatus, error) {
+                console.log("POST Error: " + xhr.responseText + ", " + textStatus + ", " + error);
+            }
+        });
+    }
+);
+
 
 var imageLoader = document.getElementById('imageLoader');
     imageLoader.addEventListener('change', handleImage, false);

@@ -11,7 +11,6 @@ from torchvision.transforms.functional import to_tensor
 import torch
 
 
-from model import Net, CNN
 
 app = FastAPI(debug=True)
 
@@ -30,7 +29,7 @@ class ImageData(BaseModel):
     def to_pil(self):
         decoded_image = base64.b64decode(self.img_base_64)
         img = Image.open(io.BytesIO(decoded_image))
-        img = img.convert('L')
+        img = img.convert('RGB')
         return img
 
 
@@ -50,7 +49,8 @@ async def mnist_predict(img_data: ImageData):
     img = img.resize((224, 224))
 
     img = to_tensor(img).unsqueeze(0)
-    output = torch.from_numpy(ort_sess.run(None, {'input': img.numpy()}))
+    output = ort_sess.run(None, {'input': img.numpy()})[0]
+    output = torch.from_numpy(output)
 
     prediction = torch.argmax(output, dim=1).item()
 

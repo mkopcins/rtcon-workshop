@@ -13,11 +13,11 @@
 <body>
     <div class="container mt-4">
       <div class="row d-flex justify-content-center">
-        <!-- <div class="col-md-4 col-xs-12"> -->
         <div class="flex" style="flex-direction: column;display: flex;">
           <canvas id="imageCanvas"></canvas>
-          <input type="file" id="imageLoader" name="imageLoader"/>
-          <button type="button" class="btn btn-primary" id="predict-onnx">Predict using ONNX</button>
+          <input class="mt-2" type="file" id="imageLoader" name="imageLoader"/>
+          <button type="button" class="btn btn-primary mb-2 mt-2" id="predict-onnx">Predict using ONNX</button>
+          <button type="button" class="btn btn-primary" id="predict">Predict with backend</button>
           <div id="response-text" class="lead py-3"></div>
           <div id="latency-text" class="lead py-3"></div>
         </div>
