@@ -2,19 +2,15 @@ import base64
 import io
 from typing import List
 
-import lovely_tensors
 import torch.nn.functional as F
 from PIL import Image
 from fastapi import FastAPI
-from matplotlib import pyplot as plt
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 from torchvision.transforms.functional import to_tensor
 import torch
 
-lovely_tensors.monkey_patch()
 
-from model import Net, CNN
 
 app = FastAPI(debug=True)
 
@@ -42,9 +38,8 @@ class PredResponse(BaseModel):
     proba: List[float]
     labels: List[str]
 
-
-model = CNN()
-model.load_state_dict(torch.load('model.pt', map_location=torch.device('cpu')))
+# load model here
+model = ...
 
 
 @app.post("/api/mnist", response_model=PredResponse)
@@ -55,10 +50,6 @@ async def mnist_predict(img_data: ImageData):
     img = to_tensor(img).unsqueeze(0)
     img = 1-img
     img = img * 2. - 1.
-
-    print(img)
-    plt.imshow(img[0][0])
-    plt.show()
 
     output = model(img)
     probabilities = F.softmax(output, dim=1)

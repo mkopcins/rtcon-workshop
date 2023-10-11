@@ -63,31 +63,6 @@ async function extractImage(height = 28, width = 28) {
     image = tf.onesLike(image).sub(image);
     return image.dataSync();
 }
-async function predictOnnx(tensor) {
-    const input = new onnx.Tensor(tensor, 'float32', [1, 1, 28, 28]);
-    const outputMap = await session.run([input]);
-    const outputData = Array.from(outputMap.values().next().value.data);
-    const outputTensor = tf.tensor(outputData);
-    const proba = tf.softmax(outputTensor).dataSync();
-    const prediction = proba.indexOf(Math.max(...proba));
-
-    const result = {
-        "prediction": prediction,
-        "proba": proba,
-        "labels": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-    };
-
-    return result;
-}
-
-$("#predict-onnx").click(
-    async function () {
-        const tensor = await extractImage();
-        const result = await predictOnnx(tensor);
-        $("#response-text").text("Prediction: " + result.prediction);
-        updateChart(result);
-});
-
 
 
 // CHART
