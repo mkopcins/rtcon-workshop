@@ -1,10 +1,7 @@
-window.onload = () => {
-    navigator.mediaDevices.getUserMedia({video: true, audio: false}).then( async stream => {
-        const path = 'resnet101.onnx';
-
-        const session = await ort.InferenceSession.create(path, {});
-        window.session = session;
-    }).catch(e => console.error(e));
+window.onload = async () => {
+    const path = 'resnet101.onnx';
+    const session = await ort.InferenceSession.create(path, {});
+    window.session = session;
   }
 
 async function predictOnnx() {
