@@ -6,8 +6,8 @@ window.onload = async () => {
 
 async function predictOnnx() {
     const start = performance.now();
-    const canvasContext = canvas2.getContext('2d');
-    const input = await ort.Tensor.fromImage(canvasContext.getImageData(0,0, canvas2.width, canvas2.height));
+    const canvasContext = canvas.getContext('2d');
+    const input = await ort.Tensor.fromImage(canvasContext.getImageData(0,0, canvas.width, canvas.height));
     const {output} = await window.session.run({input: input});
     window.output = output
     console.log(output)
