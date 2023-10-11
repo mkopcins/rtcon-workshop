@@ -15,41 +15,12 @@ $("#clear-canvas").click(function () {
     $("#status").removeClass();
 });
 
-
-// PREDICTIONS USING REST API CALL
-
-$("#predict").click(function () {
-    const dataURL = canvas.toDataURL('jpg');
-    const base64Image = dataURL.split(',')[1];
-
-    $.ajax({
-        url: 'http://localhost:8081/api/mnist',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({img_base_64: base64Image}),
-        success: function (res) {
-            if (res.prediction !== undefined) {
-                console.log(res);
-                $("#response-text").text("Prediction: " + res.prediction);
-                updateChart(res);
-            } else {
-                console.log(res)
-            }
-        },
-        error: function (xhr, textStatus, error) {
-            console.log("POST Error: " + xhr.responseText + ", " + textStatus + ", " + error);
-        }
-    });
-});
-
-
-
 // PREDICTIONS USING ONNX.JS
 
 tf.setBackend('cpu');
 let session; // for storing the model session globally
 document.addEventListener('DOMContentLoaded', async (event) => {
-    const path = '../model.onnx'; // path or URL to your model file
+    const path = 'model.onnx'; // path or URL to your model file
     session = new onnx.InferenceSession();
     await session.loadModel(path);
 });
@@ -80,7 +51,7 @@ async function predictOnnx(tensor) {
     return result;
 }
 
-$("#predict-onnx").click(
+$("#predict").click(
     async function () {
         const tensor = await extractImage();
         const result = await predictOnnx(tensor);
